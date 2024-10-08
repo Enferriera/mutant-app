@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mutant_app
+    ports:
+      - "8094:8094"
+    environment:
+      - SPRING_DATASOURCE_URL=${DB_URL}
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - SPRING_DATA_REDIS_URL=${REDIS_URL}
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    networks:
+      - mutant_network
+
+  db:
+    image: mysql:8.0
+    container_name: db_mutant
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+
+
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - mutant_network
+
+networks:
+  mutant_network:
+    driver: bridge
+
+volumes:
+  db_data:
